@@ -44,3 +44,6 @@ jobs:
       # Apply the Terraform plan (create the resources)
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+      - name: Terraform destroy
+        run: terraform destroy  
