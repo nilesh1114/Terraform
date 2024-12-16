@@ -38,38 +38,5 @@ resource "aws_route_table_association" "main" {
   route_table_id = aws_route_table.main.id
 }
 
-# Create an S3 bucket for Terraform state storage
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "my-terraform-state-bucket"  # Ensure this is globally unique
-  acl    = "private"
 
-  tags = {
-    Name = "terraform-state"
-  }
-}
 
-# Create DynamoDB table for state locking
-resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "terraform-state-lock"
-  hash_key       = "LockID"
-  billing_mode   = "PAY_PER_REQUEST"
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  tags = {
-    Name = "terraform-lock"
-  }
-}
-
-# Configure backend for Terraform state using S3 and DynamoDB for state locking
-terraform {
-  backend "s3" {
-    bucket         = aws_s3_bucket.terraform_state.bucket
-    key            = "terraform.tfstate"
-    region         = "us-east-1"  # Same region as VPC
-    dynamodb_table = aws_dynamodb_table.terraform_lock.name
-    encrypt        = true
-  }
-}
