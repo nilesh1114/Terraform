@@ -2,9 +2,7 @@ name: AWS RESOURCE CREATION
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main  # Trigger on push to the main branch (or your default branch)
+  
 
 jobs:
   terraform:
