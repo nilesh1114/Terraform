@@ -25,8 +25,7 @@ jobs:
       with:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws_region: us-east-1  # Set your AWS region
-
+        aws-region: ${{ secrets.AWS_REGION }}
     - name: Terraform Init
       run: |
         terraform init -backend-config="key=vpc/terraform.tfstate" -backend-config="bucket=powertool1107" -backend-config="region=us-east-1" -backend-config="encrypt=true" -backend-config="versioning=true" -backend-config="dynamodb_table=powertool"
