@@ -27,12 +27,10 @@ jobs:
 
     - name: Terraform Init
       run: |
-        terraform init -backend-config="bucket=powertool1107" \
-                       -backend-config="key=vpc/terraform.tfstate" \
-                       -backend-config="region=us-east-1" \
-                       -backend-config="encrypt=true" \
-                       -backend-config="versioning=true" \
-                       -backend-config="dynamodb_table=my-terraform-lock-table"
+        terraform init -backend-config="key=vpc/terraform.tfstate" -backend-config="bucket=powertool1107" -backend-config="region=us-east-1" -backend-config="encrypt=true" -backend-config="versioning=true" -backend-config="dynamodb_table=powertool"
+        terraform init -backend-config="key=security_group/terraform.tfstate" -backend-config="bucket=powertool1107" -backend-config="region=us-east-1" -backend-config="encrypt=true" -backend-config="versioning=true" -backend-config="dynamodb_table=powertool"
+        terraform init -backend-config="key=subnet/terraform.tfstate" -backend-config="bucket="powertool1107" -backend-config="region=us-east-1" -backend-config="encrypt=true" -backend-config="versioning=true" -backend-config="dynamodb_table=powertool"
+                      
 
     - name: Terraform Plan
       run: |
