@@ -31,7 +31,7 @@ jobs:
                        -backend-config="key=vpc/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
-                       -backend-config="versioning=true" \
+                      
                        -backend-config="dynamodb_table=powertool"
     
     - name: Terraform Plan for VPC
@@ -46,7 +46,7 @@ jobs:
                        -backend-config="key=security_group/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
-                       -backend-config="versioning=true" \
+                       
                        -backend-config="dynamodb_table=powertool"
     
     - name: Terraform Plan for Security Group
@@ -61,7 +61,7 @@ jobs:
                        -backend-config="key=subnet/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
-                       -backend-config="versioning=true" \
+                       
                        -backend-config="dynamodb_table=powertool"
     
     - name: Terraform Plan for Subnet
