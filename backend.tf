@@ -4,7 +4,7 @@ terraform {
     bucket         = "powertool1107"  # S3 bucket for state storage
     key            = "file/terraform.tfstate"                  # Path for the state file
     region         = "us-east-1"                           # AWS region
-    dynamodb_table = "powertool" # DynamoDB table for state locking
+    dynamodb_table = powertool # DynamoDB table for state locking
                                    
   }
 }
