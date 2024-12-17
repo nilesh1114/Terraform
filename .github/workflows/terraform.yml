@@ -43,13 +43,13 @@ jobs:
 
     - name: Initialize Terraform for Security Group module
       run: |
-         export TF_INPUT=false
-         terraform init -reconfigure \
-                        -backend-config="bucket=powertool1107" \
-                        -backend-config="key=security_group/terraform.tfstate" \
-                        -backend-config="region=us-east-1" \
-                        -backend-config="encrypt=true" \
-                        -backend-config="dynamodb_table=powertool"
+        export TF_INPUT=false
+        terraform init -reconfigure \
+                       -backend-config="bucket=powertool1107" \
+                       -backend-config="key=security_group/terraform.tfstate" \
+                       -backend-config="region=us-east-1" \
+                       -backend-config="encrypt=true" \
+                       -backend-config="dynamodb_table=powertool"
        
      
              
@@ -61,13 +61,13 @@ jobs:
 
     - name: Initialize Terraform for Subnet module
       run: |
-         export TF_INPUT=false
-         terraform init -reconfigure \ 
-                        -backend-config="bucket=powertool1107" \
-                        -backend-config="key=subnet/terraform.tfstate" \
-                        -backend-config="region=us-east-1" \
-                        -backend-config="encrypt=true" \
-                        -backend-config="dynamodb_table=powertool"
+        export TF_INPUT=false
+        terraform init -reconfigure \ 
+                       -backend-config="bucket=powertool1107" \
+                       -backend-config="key=subnet/terraform.tfstate" \
+                       -backend-config="region=us-east-1" \
+                       -backend-config="encrypt=true" \
+                       -backend-config="dynamodb_table=powertool"
        
                       
     
