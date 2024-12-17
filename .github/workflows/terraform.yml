@@ -25,18 +25,15 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Install expect
-      run: sudo apt-get install -y expect
+    
     - name: Initialize Terraform for VPC module
       run: |
-        expect <<EOF
-        spawn terraform init -backend-config="bucket=powertool1107" \
+       terraform init -backend-config="bucket=powertool1107" \
                        -backend-config="key=vpc/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-        expect "Do you want to copy existing state to the new backend?" { send "yes\r" }
-        expect eof
+        
       
     - name: Terraform Plan for VPC
       run: terraform plan -out=tfplan
@@ -46,15 +43,13 @@ jobs:
 
     - name: Initialize Terraform for Security Group module
       run: |
-        expect <<EOF
-        spawn terraform init -migrate-state \
+         terraform init -migrate-state -auto-approve \
                        -backend-config="bucket=powertool1107" \
                        -backend-config="key=security_group/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-        expect "Do you want to copy existing state to the new backend?" { send "yes\r" }
-        expect eof
+       
      
              
     - name: Terraform Plan for Security Group
@@ -65,15 +60,13 @@ jobs:
 
     - name: Initialize Terraform for Subnet module
       run: |
-        expect <<EOF
-        spawn terraform init -migrate-state \ 
+         terraform init -migrate-state -auto-approve \ 
                        -backend-config="bucket=powertool1107" \
                        -backend-config="key=subnet/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-        expect "Do you want to copy existing state to the new backend?" { send "yes\r" }
-        expect eof
+       
                       
     
     - name: Terraform Plan for Subnet
