@@ -1,4 +1,4 @@
-name: Terraform AWS Example
+name: AWS RESOURCE CREATION 
 
 on:
   workflow_dispatch:
