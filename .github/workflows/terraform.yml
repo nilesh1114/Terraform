@@ -32,7 +32,8 @@ jobs:
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-    
+      env:
+         TF_BACKEND_MIGRATION: "yes"
     - name: Terraform Plan for VPC
       run: terraform plan -out=tfplan
 
@@ -47,7 +48,9 @@ jobs:
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-    
+      env:
+          TF_BACKEND_MIGRATION: "yes"
+             
     - name: Terraform Plan for Security Group
       run: terraform plan -out=tfplan
 
@@ -62,6 +65,9 @@ jobs:
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
+
+      env:
+         TF_BACKEND_MIGRATION: "yes"                 
     
     - name: Terraform Plan for Subnet
       run: terraform plan -out=tfplan
