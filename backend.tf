@@ -5,8 +5,7 @@ terraform {
     key            = "file/terraform.tfstate"                  # Path for the state file
     region         = "us-east-1"                           # AWS region
     dynamodb_table = "powertool"  # DynamoDB table for state locking
-     hash_key     = "LockID"
-
+    LockId         ="S"
 attribute {
     name = "LockID"
     type = "S"  # String type for LockID
