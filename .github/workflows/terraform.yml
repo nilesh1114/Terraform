@@ -27,13 +27,15 @@ jobs:
 
     - name: Initialize Terraform for VPC module
       run: |
-        terraform init -backend-config="bucket=powertool1107" \
+        expect <<EOF
+        spawn terraform init -backend-config="bucket=powertool1107" \
                        -backend-config="key=vpc/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-      env:
-         TF_BACKEND_MIGRATION: "yes"
+        expect "Do you want to copy existing state to the new backend?" { send "yes\r" }
+        expect eof
+      
     - name: Terraform Plan for VPC
       run: terraform plan -out=tfplan
 
@@ -42,14 +44,16 @@ jobs:
 
     - name: Initialize Terraform for Security Group module
       run: |
-        terraform init -migrate-state \
+        expect <<EOF
+        spawn terraform init -migrate-state \
                        -backend-config="bucket=powertool1107" \
                        -backend-config="key=security_group/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-      env:
-          TF_BACKEND_MIGRATION: "yes"
+        expect "Do you want to copy existing state to the new backend?" { send "yes\r" }
+        expect eof
+     
              
     - name: Terraform Plan for Security Group
       run: terraform plan -out=tfplan
@@ -59,15 +63,16 @@ jobs:
 
     - name: Initialize Terraform for Subnet module
       run: |
-        terraform init -migrate-state \ 
+        expect <<EOF
+        spawn terraform init -migrate-state \ 
                        -backend-config="bucket=powertool1107" \
                        -backend-config="key=subnet/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
-
-      env:
-         TF_BACKEND_MIGRATION: "yes"                 
+        expect "Do you want to copy existing state to the new backend?" { send "yes\r" }
+        expect eof
+                      
     
     - name: Terraform Plan for Subnet
       run: terraform plan -out=tfplan
