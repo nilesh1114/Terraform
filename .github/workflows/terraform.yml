@@ -1,6 +1,8 @@
 name: Modules
 
 on:
+  push:
+    branches: LAB-2
   workflow_dispatch:
    
     
