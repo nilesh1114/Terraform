@@ -1,6 +1,6 @@
 # Provider configuration
 provider "aws" {
-  region = "us-east-1"  # You can change the region as needed
+  region = "us-east-1"  
 }
 
 # Create VPC
@@ -17,7 +17,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "main" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"  # Change this based on your availability zone
+  availability_zone       = "us-east-1a"  
   map_public_ip_on_launch = true
   tags = {
     Name = "main-subnet"
@@ -40,38 +40,34 @@ resource "aws_route_table_association" "main" {
 
 # Create an S3 bucket to store Terraform state
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "my-terraform-state-bucket"  # Replace with a globally unique name
+  bucket = "powertool1407"  # Replace with a globally unique name
   acl    = "private"
-
-  tags = {
-    Name = "terraform-state"
+ 
+versioning {
+    enabled = true  # Optional: Enable versioning for S3 objects
   }
+
+  lifecycle {
+    prevent_destroy = true  # Prevent accidental deletion of the bucket
+  }
+  
 }
 
 # Create a DynamoDB table for state locking
 resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "terraform-state-lock"
+  name           = "powertool1"
   hash_key       = "LockID"
-  billing_mode   = "PAY_PER_REQUEST"
+  
   attribute {
     name = "LockID"
     type = "S"
   }
 
-  tags = {
-    Name = "terraform-lock"
+  lifecycle {
+    prevent_destroy = true  # Prevent accidental deletion of the bucket
   }
 }
 
-# Configure the backend for Terraform state storage using S3 and DynamoDB for state locking
-terraform {
-  backend "s3" {
-    bucket         = aws_s3_bucket.terraform_state.bucket  # S3 bucket for state storage
-    key            = "terraform.tfstate"                  # Path for the state file
-    region         = "us-east-1"                           # AWS region
-    dynamodb_table = aws_dynamodb_table.terraform_lock.name # DynamoDB table for state locking
-    encrypt        = true                                  # Enable encryption for state files
-  }
-}
+
 
 
