@@ -1,4 +1,4 @@
-name: Terraform AWS Example
+name: Destroy Resorces 
 
 on:
   workflow_dispatch:
