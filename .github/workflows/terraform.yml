@@ -2,9 +2,7 @@ name: Module
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - LAB-2  # Trigger on changes to main branch
+  
 
 jobs:
   terraform:
