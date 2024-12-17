@@ -38,35 +38,7 @@ resource "aws_route_table_association" "main" {
   route_table_id = aws_route_table.main.id
 }
 
-# Create an S3 bucket to store Terraform state
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "powertool1407"  # Replace with a globally unique name
-  acl    = "private"
- 
-versioning {
-    enabled = true  # Optional: Enable versioning for S3 objects
-  }
 
-  lifecycle {
-    prevent_destroy = true  # Prevent accidental deletion of the bucket
-  }
-  
-}
-
-# Create a DynamoDB table for state locking
-resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "powertool1"
-  hash_key       = "LockID"
-  
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  lifecycle {
-    prevent_destroy = true  # Prevent accidental deletion of the bucket
-  }
-}
 
 
 
