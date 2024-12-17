@@ -41,7 +41,8 @@ jobs:
 
     - name: Initialize Terraform for Security Group module
       run: |
-        terraform init -backend-config="bucket=powertool1107" \
+        terraform init -migrate-state \
+                       -backend-config="bucket=powertool1107" \
                        -backend-config="key=security_group/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
@@ -55,7 +56,8 @@ jobs:
 
     - name: Initialize Terraform for Subnet module
       run: |
-        terraform init -backend-config="bucket=powertool1107" \
+        terraform init -migrate-state \ 
+                       -backend-config="bucket=powertool1107" \
                        -backend-config="key=subnet/terraform.tfstate" \
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
