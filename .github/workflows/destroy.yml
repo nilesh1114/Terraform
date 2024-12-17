@@ -1,0 +1,36 @@
+name: Terraform AWS Example
+
+on:
+  workflow_dispatch:
+  
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.5.4  # Specify the Terraform version you need
+      
+      # Set up AWS Credentials using secrets
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      
+      - name: Terraform destroy
+        run: terraform destroy -auto-approve  
