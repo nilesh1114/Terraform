@@ -12,6 +12,7 @@ on:
           - dev
           - staging
           - prod
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
@@ -32,7 +33,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     # Initialize Terraform before selecting the workspace
-    - name: Initialize Terraform
+    - name: Initialize Terraform for VPC
       run: |
         terraform init -backend-config="bucket=powertool1107" \
                        -backend-config="key=vpc/${{ github.event.inputs.environment }}/terraform.tfstate" \
@@ -43,8 +44,7 @@ jobs:
     # Select workspace for VPC
     - name: Select workspace for VPC
       run: |
-        echo "GITHUB_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
+        terraform workspace select "${{ github.event.inputs.environment }}" || terraform workspace new "${{ github.event.inputs.environment }}"
 
     - name: Terraform Plan for VPC
       run: terraform plan -out=tfplan
@@ -65,8 +65,7 @@ jobs:
     # Select workspace for Security Group
     - name: Select workspace for Security Group
       run: |
-        echo "GITHUB_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
+        terraform workspace select "${{ github.event.inputs.environment }}" || terraform workspace new "${{ github.event.inputs.environment }}"
 
     - name: Terraform Plan for Security Group
       run: terraform plan -out=tfplan
@@ -87,8 +86,7 @@ jobs:
     # Select workspace for Subnet
     - name: Select workspace for Subnet
       run: |
-        echo "GITHUB_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
+        terraform workspace select "${{ github.event.inputs.environment }}" || terraform workspace new "${{ github.event.inputs.environment }}"
 
     - name: Terraform Plan for Subnet
       run: terraform plan -out=tfplan
