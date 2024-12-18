@@ -1,17 +1,7 @@
-name: Module-workspace 
+name: Module
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Select the environment'
-        required: true
-        default: 'dev'
-        type: string
-        options:
-          - dev
-          - staging
-          - prod
 
 jobs:
   terraform:
@@ -32,14 +22,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    # Select workspace and initialize Terraform for VPC module
-    - name: Select workspace for VPC
-      run: |
-        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
-      env:
-        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}  # Define environment (dev/staging/prod)
-
-    - name: Initialize Terraform for VPC module
+    # Initialize Terraform before selecting the workspace
+    - name: Initialize Terraform
       run: |
         terraform init -backend-config="bucket=powertool1107" \
                        -backend-config="key=vpc/${{ github.event.inputs.environment }}/terraform.tfstate" \
@@ -47,20 +31,21 @@ jobs:
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
 
+    # Select workspace for VPC
+    - name: Select workspace for VPC
+      run: |
+        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
+      env:
+        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}  # Define environment (dev/staging/prod)
+
     - name: Terraform Plan for VPC
       run: terraform plan -out=tfplan
 
     - name: Apply VPC Plan
       run: terraform apply -auto-approve tfplan
 
-    # Select workspace and initialize Terraform for Security Group module
-    - name: Select workspace for Security Group
-      run: |
-        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
-      env:
-        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}
-
-    - name: Initialize Terraform for Security Group module
+    # Initialize Terraform for Security Group module
+    - name: Initialize Terraform for Security Group
       run: |
         terraform init -reconfigure \
                        -backend-config="bucket=powertool1107" \
@@ -69,20 +54,21 @@ jobs:
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
 
+    # Select workspace for Security Group
+    - name: Select workspace for Security Group
+      run: |
+        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
+      env:
+        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}
+
     - name: Terraform Plan for Security Group
       run: terraform plan -out=tfplan
 
     - name: Apply Security Group Plan
       run: terraform apply -auto-approve tfplan
 
-    # Select workspace and initialize Terraform for Subnet module
-    - name: Select workspace for Subnet
-      run: |
-        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
-      env:
-        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}
-
-    - name: Initialize Terraform for Subnet module
+    # Initialize Terraform for Subnet module
+    - name: Initialize Terraform for Subnet
       run: |
         terraform init -reconfigure \
                        -backend-config="bucket=powertool1107" \
@@ -90,6 +76,13 @@ jobs:
                        -backend-config="region=us-east-1" \
                        -backend-config="encrypt=true" \
                        -backend-config="dynamodb_table=powertool"
+
+    # Select workspace for Subnet
+    - name: Select workspace for Subnet
+      run: |
+        terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
+      env:
+        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
     - name: Terraform Plan for Subnet
       run: terraform plan -out=tfplan
