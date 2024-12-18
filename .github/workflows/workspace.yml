@@ -34,9 +34,8 @@ jobs:
     # Select workspace for VPC
     - name: Select workspace for VPC
       run: |
+        echo "GITHUB_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
         terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
-      env:
-        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}  # Define environment (dev/staging/prod)
 
     - name: Terraform Plan for VPC
       run: terraform plan -out=tfplan
@@ -57,9 +56,8 @@ jobs:
     # Select workspace for Security Group
     - name: Select workspace for Security Group
       run: |
+        echo "GITHUB_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
         terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
-      env:
-        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
     - name: Terraform Plan for Security Group
       run: terraform plan -out=tfplan
@@ -80,9 +78,8 @@ jobs:
     # Select workspace for Subnet
     - name: Select workspace for Subnet
       run: |
+        echo "GITHUB_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
         terraform workspace select ${GITHUB_ENVIRONMENT} || terraform workspace new ${GITHUB_ENVIRONMENT}
-      env:
-        GITHUB_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
     - name: Terraform Plan for Subnet
       run: terraform plan -out=tfplan
