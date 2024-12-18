@@ -1,4 +1,4 @@
-name: Module
+name: workspace-Module
 
 on:
   workflow_dispatch:
