@@ -2,7 +2,16 @@ name: workspace-Module
 
 on:
   workflow_dispatch:
-
+    inputs:
+      environment:
+        description: 'Select the environment'
+        required: true
+        default: 'dev'
+        type: string
+        options:
+          - dev
+          - staging
+          - prod
 jobs:
   terraform:
     runs-on: ubuntu-latest
