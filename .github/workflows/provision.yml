@@ -1,0 +1,52 @@
+name: Terraform Apply and Provision EC2 with Ansible
+
+on:
+  push:
+    branches:
+      - main  # Trigger this action when code is pushed to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger this action for pull requests to the main branch
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.4.0"
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Plan Terraform
+        run: terraform plan -out=tfplan
+
+      - name: Apply Terraform
+        run: terraform apply -auto-approve tfplan
+
+      - name: Output EC2 IP address
+        run: echo "EC2 Public IP: ${{ steps.terraform.outputs.instance_ip }}"
+
+      - name: Run Ansible playbook (Remote Execution)
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "false"
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ubuntu@${{ steps.terraform.outputs.instance_ip }} <<EOF
+            sudo apt-get update -y
+            sudo apt-get install nginx -y
+            sudo systemctl start nginx
+            sudo systemctl enable nginx
+          EOF
