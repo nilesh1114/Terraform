@@ -1,4 +1,4 @@
-name: Terraform and Ansible CI/CD
+name: Terraform and Ansible CI/CD.
 
 on:
   workflow_dispatch:
