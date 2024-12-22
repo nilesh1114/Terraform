@@ -1,12 +1,7 @@
 name: Terraform Apply and Provision EC2 with Ansible
 
 on:
-  push:
-    branches:
-      - main  # Trigger this action when code is pushed to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger this action for pull requests to the main branch
+ workflow_dispatch:
 
 jobs:
   terraform:
