@@ -1,12 +1,11 @@
-# Configure the AWS provider
 provider "aws" {
   region = var.aws_region
 }
 
-# Define the security group
-resource "aws_security_group" "allow_web" {
-  name        = "allow_web"
-  description = "Allow inbound web traffic"
+resource "aws_security_group" "allow_http" {
+  name        = "allow_http"
+  description = "Allow inbound HTTP traffic"
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 80
@@ -23,37 +22,43 @@ resource "aws_security_group" "allow_web" {
   }
 }
 
-# Create EC2 instance
-resource "aws_instance" "web" {
+resource "aws_instance" "web_server" {
   ami           = var.ami_id
   instance_type = var.instance_type
   key_name      = var.key_name
-  security_groups = [aws_security_group.allow_web.name]
+  security_groups = [aws_security_group.allow_http.name]
+  subnet_id     = var.subnet_id
 
-  # Configure Ansible as a provisioner
+  tags = {
+    Name = "Terraform-WebServer"
+  }
+
+  # Use remote-exec to run an Ansible playbook
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get update -y",
-      "sudo apt-get install nginx -y",
-      "sudo systemctl start nginx",
-      "sudo systemctl enable nginx"
+      "echo '${var.ansible_inventory}' > /tmp/ansible_inventory.ini",
+      "ansible-playbook -i /tmp/ansible_inventory.ini /tmp/setup_nginx.yml"
     ]
 
-    # Connect to the instance using SSH
     connection {
       type        = "ssh"
-      user        = "ubuntu"  # For Ubuntu instances
-      private_key = file(var.private_key_path)
+      user        = "ubuntu"
+      private_key = file(var.ssh_private_key_path)
       host        = self.public_ip
     }
   }
-
-  tags = {
-    Name = "WebServer"
-  }
 }
 
-# Output the public IP of the EC2 instance
-output "instance_ip" {
-  value = aws_instance.web.public_ip
+output "public_ip" {
+  value = aws_instance.web_server.public_ip
 }
+
+# Variables file
+variable "aws_region" {}
+variable "vpc_id" {}
+variable "ami_id" {}
+variable "instance_type" {}
+variable "key_name" {}
+variable "subnet_id" {}
+variable "ssh_private_key_path" {}
+variable "ansible_inventory" {}
