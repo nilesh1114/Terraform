@@ -1,7 +1,7 @@
 name: Terraform and Ansible CI/CD
 
 on:
-  workflow_dispatch:
+   workflow_dispatch:
 
 jobs:
   terraform-apply:
