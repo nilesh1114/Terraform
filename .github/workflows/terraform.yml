@@ -1,0 +1,73 @@
+name: Module
+
+on:
+  workflow_dispatch:
+  
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: '1.5.0'
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    
+    - name: Initialize Terraform for VPC module
+      run: |
+       terraform init -backend-config="bucket=powertool1107" \
+                       -backend-config="key=vpc/terraform.tfstate" \
+                       -backend-config="region=us-east-1" \
+                       -backend-config="encrypt=true" \
+                       -backend-config="dynamodb_table=powertool"
+        
+      
+    - name: Terraform Plan for VPC
+      run: terraform plan -out=tfplan
+
+    - name: Apply VPC Plan
+      run: terraform apply -auto-approve tfplan
+
+    - name: Initialize Terraform for Security Group module
+      run: |
+        export TF_INPUT=false
+        terraform init -reconfigure \
+                       -backend-config="bucket=powertool1107" \
+                       -backend-config="key=security_group/terraform.tfstate" \
+                       -backend-config="region=us-east-1" \
+                       -backend-config="encrypt=true" \
+                       -backend-config="dynamodb_table=powertool"
+       
+    
+    - name: Terraform Plan for Security Group
+      run: terraform plan -out=tfplan
+
+    - name: Apply Security Group Plan
+      run: terraform apply -auto-approve tfplan
+
+    - name: Initialize Terraform for Subnet module
+      run: |
+        export TF_INPUT=false
+        terraform init -reconfigure \
+                       -backend-config="bucket=powertool1107" \
+                       -backend-config="key=subnet/terraform.tfstate" \
+                       -backend-config="region=us-east-1" \
+                       -backend-config="encrypt=true" \
+                       -backend-config="dynamodb_table=powertool"
+       
+    - name: Terraform Plan for Subnet
+      run: terraform plan -out=tfplan
+
+    - name: Apply Subnet Plan
+      run: terraform apply -auto-approve tfplan
