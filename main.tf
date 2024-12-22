@@ -1,41 +1,59 @@
-
-
-module "vpc" {
-  source      = "./modules/vpc"
-  vpc_name    = "my-vpc"
-  cidr_block  = "10.0.0.0/16"
+# Configure the AWS provider
+provider "aws" {
+  region = var.aws_region
 }
 
-module "security_group" {
-  source                = "./modules/security_group"
-  security_group_name   = "web-server-sg"
-  vpc_id                = module.vpc.vpc_id
-  ingress_from_port     = 22
-  ingress_to_port       = 22
-  ingress_protocol      = "tcp"
-  ingress_cidr_blocks   = ["0.0.0.0/0"]
-  egress_from_port      = 0
-  egress_to_port        = 0
-  egress_protocol       = "-1"
-  egress_cidr_blocks    = ["0.0.0.0/0"]
+# Define the security group
+resource "aws_security_group" "allow_web" {
+  name        = "allow_web"
+  description = "Allow inbound web traffic"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
-module "subnet" {
-  source               = "./modules/subnet"
-  vpc_id               = module.vpc.vpc_id
-  cidr_block           = "10.0.1.0/24"
-  availability_zone    = "us-east-1a"
-  subnet_name          = "web-subnet"
+# Create EC2 instance
+resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name
+  security_groups = [aws_security_group.allow_web.name]
+
+  # Configure Ansible as a provisioner
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install nginx -y",
+      "sudo systemctl start nginx",
+      "sudo systemctl enable nginx"
+    ]
+
+    # Connect to the instance using SSH
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"  # For Ubuntu instances
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
+
+  tags = {
+    Name = "WebServer"
+  }
 }
 
-output "vpc_id" {
-  value = module.vpc.vpc_id
-}
-
-output "security_group_id" {
-  value = module.security_group.security_group_id
-}
-
-output "subnet_id" {
-  value = module.subnet.subnet_id
+# Output the public IP of the EC2 instance
+output "instance_ip" {
+  value = aws_instance.web.public_ip
 }
