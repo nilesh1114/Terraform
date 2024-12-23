@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-1"  # Specify your region
 }
 
 # Step 1: Create a secret in AWS Secrets Manager
@@ -16,17 +16,13 @@ resource "aws_secretsmanager_secret_version" "example_secret_version" {
 }
 
 # Step 2: Retrieve the secret using data source
-data "aws_secretsmanager_secret" "example" {
-  secret_id = aws_secretsmanager_secret.example_secret.id
-}
-
 data "aws_secretsmanager_secret_version" "example_version" {
-  secret_id = data.aws_secretsmanager_secret.example.id
+  secret_id = aws_secretsmanager_secret.example_secret.id
 }
 
 # Step 3: Output the secret value (marked as sensitive to avoid plaintext output)
 output "db_password" {
-  value     = data.aws_secretsmanager_secret_version.example_version.secret_string["db_password"]
+  value     = jsondecode(data.aws_secretsmanager_secret_version.example_version.secret_string)["db_password"]
   sensitive = true
 }
 
@@ -38,7 +34,7 @@ resource "aws_instance" "example_ec2" {
   # Use the secret password for an environment variable or initialization
   user_data = <<-EOF
               #!/bin/bash
-              echo "DB_PASSWORD=${data.aws_secretsmanager_secret_version.example_version.secret_string["db_password"]}" > /etc/db_password.txt
+              echo "DB_PASSWORD=${jsondecode(data.aws_secretsmanager_secret_version.example_version.secret_string)["db_password"]}" > /etc/db_password.txt
               EOF
 
   tags = {
