@@ -2,9 +2,16 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Create SSH key pair (private key will be automatically generated)
+# Generate a new SSH key pair using TLS
+resource "tls_private_key" "web_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+# Create AWS key pair using the generated public key
 resource "aws_key_pair" "web_key" {
   key_name   = "web-key"
+  public_key = tls_private_key.web_key.public_key_openssh
 }
 
 # Security group to allow HTTP (port 80) and SSH (port 22) traffic
@@ -50,14 +57,4 @@ resource "aws_instance" "web_server" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = file("${path.module}/ssh_keys/private-key.pem")
-      host        = self.public_ip
-    }
-  }
-}
-
-# Output the private key to be used later
-output "private_key" {
-  value     = aws_key_pair.web_key.private_key
-  sensitive = true
-}
+      private_key = tls_private_key.web
