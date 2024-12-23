@@ -2,6 +2,12 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Create SSH key pair
+resource "aws_key_pair" "web_key" {
+  key_name   = "web-key"
+  public_key = file("${path.module}/your-public-key.pub")
+}
+
 # Security group to allow HTTP (port 80) and SSH (port 22) traffic
 resource "aws_security_group" "web_sg" {
   name        = "web_sg"
@@ -30,7 +36,7 @@ resource "aws_security_group" "web_sg" {
 resource "aws_instance" "web_server" {
   ami           = "ami-0c55b159cbfafe1f0" # Replace with a valid AMI ID
   instance_type = "t2.micro"
-  key_name      = "your-ssh-key-name"    # Replace with your SSH key
+  key_name      = aws_key_pair.web_key.key_name
   security_groups = [aws_security_group.web_sg.name]
   tags = {
     Name = "WebServer"
@@ -45,8 +51,14 @@ resource "aws_instance" "web_server" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      private_key = file("${path.module}/ssh_keys/your-private-key.pem")
+      private_key = file("${path.module}/ssh_keys/private-key.pem")
       host        = self.public_ip
     }
   }
+}
+
+# Outputs the private key
+output "private_key" {
+  value = aws_key_pair.web_key.private_key
+  sensitive = true
 }
