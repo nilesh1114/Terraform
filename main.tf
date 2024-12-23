@@ -2,10 +2,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Create SSH key pair
+# Create SSH key pair (private key will be automatically generated)
 resource "aws_key_pair" "web_key" {
   key_name   = "web-key"
-  public_key = file("${path.module}/your-public-key.pub")
 }
 
 # Security group to allow HTTP (port 80) and SSH (port 22) traffic
@@ -57,8 +56,8 @@ resource "aws_instance" "web_server" {
   }
 }
 
-# Outputs the private key
+# Output the private key to be used later
 output "private_key" {
-  value = aws_key_pair.web_key.private_key
+  value     = aws_key_pair.web_key.private_key
   sensitive = true
 }
