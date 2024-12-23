@@ -1,19 +1,23 @@
 provider "aws" {
-  region = var.aws_region
+  region = "us-east-1"
 }
 
-resource "aws_security_group" "allow_http" {
-  name        = "allow_http"
-  description = "Allow inbound HTTP traffic"
-  vpc_id      = var.vpc_id
-
+# Security group to allow HTTP (port 80) and SSH (port 22) traffic
+resource "aws_security_group" "web_sg" {
+  name        = "web_sg"
+  description = "Allow HTTP and SSH"
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -22,43 +26,27 @@ resource "aws_security_group" "allow_http" {
   }
 }
 
+# Provision an EC2 instance
 resource "aws_instance" "web_server" {
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  key_name      = var.key_name
-  security_groups = [aws_security_group.allow_http.name]
-  subnet_id     = var.subnet_id
-
+  ami           = "ami-0c55b159cbfafe1f0" # Replace with a valid AMI ID
+  instance_type = "t2.micro"
+  key_name      = "your-ssh-key-name"    # Replace with your SSH key
+  security_groups = [aws_security_group.web_sg.name]
   tags = {
-    Name = "Terraform-WebServer"
+    Name = "WebServer"
   }
 
-  # Use remote-exec to run an Ansible playbook
+  # Use remote-exec to configure EC2 with Ansible
   provisioner "remote-exec" {
     inline = [
-      "echo '${var.ansible_inventory}' > /tmp/ansible_inventory.ini",
-      "ansible-playbook -i /tmp/ansible_inventory.ini /tmp/setup_nginx.yml"
+      "echo 'Provisioning started!'"
     ]
 
     connection {
       type        = "ssh"
-      user        = "ubuntu"
-      private_key = file(var.ssh_private_key_path)
+      user        = "ec2-user"
+      private_key = file("~/.ssh/your-private-key.pem")  # Path to your private key
       host        = self.public_ip
     }
   }
 }
-
-output "public_ip" {
-  value = aws_instance.web_server.public_ip
-}
-
-# Variables file
-variable "aws_region" {}
-variable "vpc_id" {}
-variable "ami_id" {}
-variable "instance_type" {}
-variable "key_name" {}
-variable "subnet_id" {}
-variable "ssh_private_key_path" {}
-variable "ansible_inventory" {}
