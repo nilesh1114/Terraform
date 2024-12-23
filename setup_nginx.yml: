@@ -1,15 +1,14 @@
 ---
-- name: Set up Nginx on EC2
+- name: Install and start Nginx
   hosts: all
   become: yes
   tasks:
-    - name: Install nginx
-      apt:
+    - name: Install Nginx
+      yum:
         name: nginx
         state: present
-        update_cache: yes
 
-    - name: Start nginx service
+    - name: Start Nginx service
       service:
         name: nginx
         state: started
