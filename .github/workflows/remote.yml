@@ -34,12 +34,12 @@ jobs:
       - name: Apply Terraform configuration
         run: terraform apply -auto-approve
 
-      - name: Output private key and set GitHub Secret
-        id: output-private-key
+      - name: Save private key to file
         run: |
-          echo "PRIVATE_KEY=$(terraform output -raw private_key)" >> $GITHUB_ENV
-          echo "${{ secrets.PRIVATE_KEY }}" > private-key.pem
+          echo "${{ steps.terraform.outputs.private_key }}" > private-key.pem
           chmod 600 private-key.pem
+        env:
+          PRIVATE_KEY: ${{ steps.terraform.outputs.private_key }}
 
   ansible:
     runs-on: ubuntu-latest
@@ -52,10 +52,10 @@ jobs:
       - name: Set up Ansible
         run: sudo apt-get install -y ansible
 
-      - name: Set up SSH private key for Ansible
+      - name: Install SSH key for Ansible
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ steps.terraform.outputs.private_key }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: Run Ansible Playbook
