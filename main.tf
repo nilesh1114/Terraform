@@ -4,7 +4,7 @@ provider "aws" {
 
 # Step 1: Create a secret in AWS Secrets Manager with the new name
 resource "aws_secretsmanager_secret" "powertool" {
-  name        = "my-database-secret"
+  name        = "my-database-secret1"
   description = "A secret for my database password"
 }
 
