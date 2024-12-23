@@ -2,7 +2,6 @@ name: Terraform and Ansible CI/CD
 
 on:
   workflow_dispatch:
-   
 
 jobs:
   terraform:
@@ -15,17 +14,19 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: '1.5.0'
-      
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Initialize Terraform
         run: terraform init
 
-      
+      - name: Validate Terraform configuration
+        run: terraform validate
 
       - name: Plan Terraform deployment
         run: terraform plan
@@ -33,9 +34,16 @@ jobs:
       - name: Apply Terraform configuration
         run: terraform apply -auto-approve
 
+      - name: Output private key and set GitHub Secret
+        id: output-private-key
+        run: |
+          echo "PRIVATE_KEY=$(terraform output -raw private_key)" >> $GITHUB_ENV
+          echo "${{ secrets.PRIVATE_KEY }}" > private-key.pem
+          chmod 600 private-key.pem
+
   ansible:
     runs-on: ubuntu-latest
-    needs: terraform  # Ensure this runs after the terraform job
+    needs: terraform
 
     steps:
       - name: Checkout code
@@ -44,17 +52,11 @@ jobs:
       - name: Set up Ansible
         run: sudo apt-get install -y ansible
 
-      - name: Install SSH key for Ansible
+      - name: Set up SSH private key for Ansible
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-
-      - name: Debugging
-        run: |
-          echo "Displaying SSH_PRIVATE_KEY (for debugging purposes only):"
-          cat ~/.ssh/id_rsa
 
       - name: Run Ansible Playbook
         run: |
