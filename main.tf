@@ -35,7 +35,7 @@ output "db_password" {
 
 # Step 5: Launch an EC2 instance and use the secret value (e.g., for authentication)
 resource "aws_instance" "example_ec2" {
-  ami           = "ami-0c55b159cbfafe1f0"  # Replace with your region's AMI
+  ami           = "ami-01816d07b1128cd2d"  # Replace with your region's AMI
   instance_type = "t2.micro"
 
   # Use the secret password for an environment variable or initialization
