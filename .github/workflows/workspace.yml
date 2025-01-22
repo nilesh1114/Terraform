@@ -31,7 +31,7 @@ jobs:
     - name: List files in current directory
       run: ls -alh
     - name: Run Checkov scan
-      run: checkov -d 
+      run: checkov -d .
       
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
