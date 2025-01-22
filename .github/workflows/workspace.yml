@@ -1,4 +1,4 @@
-name: workspace-Module
+name: workspace-Module- checkov 
 
 on:
   workflow_dispatch:
